@@ -1,0 +1,254 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "PearlThoughts Notification Backend API",
+      "description": "API documentation for PearlThoughts Backend",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:5001/api/backend/v1",
+        "description": "Local"
+      }
+    ],
+    "paths": {
+      "/send-notification/{type}": {
+        "post": {
+          "summary": "Send notification",
+          "description": "Send mail or SMS notification",
+          "tags": ["Notification"],
+          "parameters": [
+            {
+              "name": "type",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "Type must be one of mail or sms",
+                "enum": ["mail", "sms"]
+              },
+              "examples": {
+                "example1": {
+                  "value": "mail"
+                }
+              }
+            }
+          ],
+          "requestBody": {
+            "description": "Payload for notification is required",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "to": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Email address for mail type notifications or phone number for SMS notifications"
+                    },
+                    "subject": {
+                      "type": "string",
+                      "description": "Subject for the notification"
+                    },
+                    "html": {
+                      "type": "string",
+                      "description": "HTML content for the email notification"
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "Plain text content for the email notification"
+                    }
+                  },
+                  "required": ["to"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Notification sent successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "description": "Details of the sent notification"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request - Validation error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string",
+                        "description": "Validation error message"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "integer",
+                        "example": 500,
+                        "description": "HTTP status code indicating an internal server error."
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Internal Server Error",
+                        "description": "Error message indicating the failure."
+                      }
+                    },
+                    "required": ["status", "message"]
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/notification/{notificationId}": {
+        "get": {
+          "summary": "Retrieve notification details",
+          "description": "Retrieve details of a specific notification using the notificationId.",
+          "tags": ["Notification"],
+          "parameters": [
+            {
+              "name": "notificationId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "The unique identifier for the notification.",
+                "minLength": 24,
+                "maxLength": 24
+              },
+              "examples": {
+                "example1": {
+                  "value": "60d21b4667d0d8992e610c85"
+                }
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Notification details retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "notificationId": {
+                        "type": "string",
+                        "description": "The unique identifier for the notification"
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "The status of the notification"
+                      },
+                      "receiverEmail": {
+                        "type": "string",
+                        "description": "The email address of the notification receiver"
+                      },
+                      "subject": {
+                        "type": "string",
+                        "description": "The subject of the notification"
+                      },
+                      "notificationLog": {
+                        "type": "string",
+                        "description": "Log of notification activities"
+                      }
+                    },
+                    "required": ["notificationId", "status", "receiverEmail", "subject"]
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request - Invalid notificationId",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "integer",
+                        "example": 400,
+                        "description": "HTTP status code indicating a bad request."
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Invalid notificationId",
+                        "description": "Error message indicating the invalid request."
+                      }
+                    },
+                    "required": ["status", "message"]
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found - Notification not found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "integer",
+                        "example": 404,
+                        "description": "HTTP status code indicating the resource was not found."
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Notification not found",
+                        "description": "Error message indicating the notification was not found."
+                      }
+                    },
+                    "required": ["status", "message"]
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "BearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      }
+    }
+  }
+  
